@@ -52,7 +52,7 @@ userRouter.put("/:userId", async (req, res) => {
 		const { age, name } = req.body;
 		if(!age && !name) return res.status(400).send({ err: "age or name is required" });
 		if(age && typeof age !== "number") return res.status(400).send({err: "age must be a number"});
-		if(name && typeof name !== "object") return res.status(400).send({err: "name must be a string"});
+		if(name && typeof name !== "object") return res.status(400).send({err: "name must be a object"});
 		/*
 		let updateBody = {};
 

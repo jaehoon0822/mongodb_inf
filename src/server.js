@@ -5,7 +5,7 @@ const { blogRouter } = require("./routes/blogRoute.js");
 
 const app = express();
 const port = 3000;
-const MONGO_URI = 'mongodb+srv://admin:JVQ19YhYyHAetrXX@mongodbtutorial.uksk8.mongodb.net/BlogService?retryWrites=true&w=majority'
+const MONGO_URI = 'mongodb+srv://admin:9KFH9ObdjVJnbQUF@mongodbtutorial.uksk8.mongodb.net/BlogService?retryWrites=true&w=majority'
 
 const server = async() => {
 	try {
