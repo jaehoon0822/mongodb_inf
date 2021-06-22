@@ -10,6 +10,7 @@ const { PORT } = process.env;
 const { MONGO_URI } = process.env
 
 if (!MONGO_URI) throw new Error("MONGO_URI is not exeist");
+if (!PORT) throw new Error("PORT is not exeist");
 
 const server = async () => {
 	try {
