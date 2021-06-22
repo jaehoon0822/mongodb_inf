@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const mongoose = require("mongoose");
-const { User } = require("../models/User");
+const { User, Blog, Comment } = require("../models");
 
 const userRouter = Router();
 
@@ -65,7 +65,17 @@ userRouter.put("/:userId", async (req, res) => {
 		const user = await User.findOne({ _id: userId });
 		console.log({userBeforeEdit: user});
 		if(age) user.age = age;
-		if(name) user.name = name;
+		if(name) {
+			user.name = name,
+			await Promise.all([
+				Blog.updateMany({ "user._id": userId }, { "user.name": name } ),
+				Blog.updateMany(
+					{},
+					{ "comments.$[elem].userFullname": `${name.first} ${name.last}` },
+					{ arrayFilters: [{ 'elem.user': userId }] 
+				}),
+			]);
+		}
 		console.log({userAfterEdit: user});
 		await user.save();
 		return res.send( user );
@@ -77,8 +87,19 @@ userRouter.put("/:userId", async (req, res) => {
 userRouter.delete('/:userId', async(req, res) => {
 	try {
 		const { userId } = req.params;
-		if(!mongoose.isValidObjectId(userId)) return res.status(400).send({ err: "invalid ObjectId" });
-		const user = await User.findOneAndDelete({ _id: userId });
+		if(!mongoose.isValidObjectId(userId)) 
+			return res.status(400).send({ err: "invalid ObjectId" });
+
+		const [ user ] = await Promise.all([
+			User.findOneAndDelete({ _id: userId }),
+			Blog.deleteMany({ "user._id": userId }),
+			Blog.updateMany(
+				{ "comments.user": userId },
+				{ $pull: { comments: { user: userId } } }
+			),
+			Comment.deleteMany({ user: userId }),
+		]);
+
 		return res.send({ user });
 	} catch(err) {
 		return res.status(500).send({ err: err.message });
